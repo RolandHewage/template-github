@@ -49,15 +49,15 @@ the application for the first time
 ### Setup Github Configurations
 * First obtain a [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) or [GitHub OAuth App token](https://docs.github.com/en/developers/apps/creating-an-oauth-app).
 * Next you need to create a Github repository where you want to get new commits to the google spreadsheet.
-* Set the github topic in the following format. Replace the <Github-User-Name> with the Username of the Github Account &
-<Repository-Name-To-Get-Commits> with the name of the repository you created.
+* Set the github topic in the following format. Replace the `<Github-User-Name>` with the Username of the Github Account &
+`<Repository-Name-To-Get-Commits>` with the name of the repository you created.
 `https://github.com/<Github-User-Name>/<Repository-Name-To-Get-Commits>/events/*.json`
 * Then you can optionally add a github secret for signature validation.
 * To setup a github callback URL, you can install [ngrok](https://ngrok.com/download) and [expose a local web server to 
 the internet](https://ngrok.com/docs).
 * Then start the ngork with webhook:Listener service port (8080 in this example) by using the command ./ngrok http 8080 
 and obtain a public URL which expose your local service to the internet.
-* Set the github callback URL which is in the format <public-url-obtained-by-ngrok>/<name-of-the-websub-service> 
+* Set the github callback URL which is in the format `<public-url-obtained-by-ngrok>/<name-of-the-websub-service>`
 (eg: https://ea0834f44458.ngrok.io/subscriber)
 * Add the accessToken, githubTopic, githubSecret and githubCallback to the config(Config.toml) file.
 
@@ -86,7 +86,7 @@ Select OAuth client Id.
 1. Create new spreadsheet.
 2. Rename the sheet if you want.
 3. Get the ID of the spreadsheet. 
-Spreadsheet ID in the URL "https://docs.google.com/spreadsheets/d/" + <spreadsheetId> + "/edit#gid=" + <worksheetId> 
+Spreadsheet ID in the URL "https://docs.google.com/spreadsheets/d/" + `<spreadsheetId>` + "/edit#gid=" + `<worksheetId>` 
 5. Get the sheet name
 6. Once you obtained all configurations, Create `Config.toml` in root directory.
 7. Replace "" in the `Config.toml` file with your data.
