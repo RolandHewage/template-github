@@ -1,11 +1,11 @@
-# Add rows to Google Sheets Spreadsheet when new commit is made in Github
+# Add rows to Google sheets spreadsheet when new commit is made in Github
 
-## Intergration Use Case
+## Intergration use case
 
 At the execution of this template, each time new commmit is made in github and pushed, Google Sheets Spreadsheet rows 
 will be added containing info about the commit. 
 
-## Supported Versions
+## Supported versions
 
 <table>
   <tr>
@@ -44,9 +44,9 @@ will be added containing info about the commit.
 the application for the first time
 
 
-## configuration
+## Configuration
 
-### Setup Github Configurations
+### Setup Github configurations
 * First obtain a [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) or [GitHub OAuth App token](https://docs.github.com/en/developers/apps/creating-an-oauth-app).
 * Next you need to create a Github repository where you want to get new commits to the google spreadsheet.
 * Set the github topic in the following format. Replace the `<Github-User-Name>` with the Username of the Github Account &
@@ -62,7 +62,7 @@ and obtain a public URL which expose your local service to the internet.
 * Add the accessToken, githubTopic, githubSecret and githubCallback to the config(Config.toml) file.
 
 
-### Setup Google Sheets Configurations
+### Setup Google sheets configurations
 Create a Google account and create a connected app by visiting [Google cloud platform APIs and Services](https://console.cloud.google.com/apis/dashboard). 
 
 1. Click Library from the left side menu.
@@ -81,7 +81,7 @@ Select OAuth client Id.
 12. Exchange Auth code for tokens.
 13. Copy Access token and Refresh token. Put it on the config(Config.toml) file.
 
-## Configuring the Integration Template
+## Configuring the integration template
 
 1. Create new spreadsheet.
 2. Rename the sheet if you want.
@@ -109,7 +109,7 @@ sheets_refreshurl = ""
 sheets_spreadsheet_id = ""
 sheets_worksheet_name = ""
 
-## Running the Template
+## Running the template
 
 1. First you need to build the integration template and create the executable binary. Run the following command from the 
 root directory of the integration template. 
