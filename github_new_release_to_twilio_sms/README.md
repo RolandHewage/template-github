@@ -75,10 +75,10 @@ Create a [Twilio developer account](https://www.twilio.com/).
 
 #### ballerinax/github related configurations 
 
-accessToken = ""
-githubTopic = ""
-githubSecret = ""
-githubCallback = ""
+accessToken = ""  
+githubTopic = ""  
+githubSecret = ""  
+githubCallback = ""  
 
 #### ballerinax/twilio related configurations  
 
