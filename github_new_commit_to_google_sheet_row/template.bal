@@ -47,7 +47,7 @@ service /subscriber on githubListener {
         (string)[] headerValues = ["Commit Author Name", "Commit Author Email", "Commit Message", "Commit URL", 
             "Repository Name", "Repository URL"];
         var headers = spreadsheetClient->getRow(sheets_spreadsheet_id, sheets_worksheet_name, 1);
-        if(headers == []){
+        if (headers == []){
             error? headerAppendResult = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
                 sheets_worksheet_name, headerValues);
             if (headerAppendResult is error) {
