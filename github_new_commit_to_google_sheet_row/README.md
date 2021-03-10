@@ -1,116 +1,131 @@
-# Add rows to Google sheets spreadsheet when new commit is made in Github
+# Template: GitHub new commit to Google Sheet row
+When a new commit is made and pushed in Github, add a new rows to a Google Sheet.
 
-## Intergration use case
+We can make our day-to-day information organized and represented in a generic format with the help of Google Sheets. By 
+using this integration, we can organize and automatically set up a Google Sheet which will contain information about 
+commits made in a specific GitHub repository. 
 
-At the execution of this template, each time new commmit is made in github and pushed, Google sheets spreadsheet rows 
-will be added containing info about the commit. 
+This template can be used to create new rows in a Google Sheet when new commits are made and pushed to a specific GitHub repository.
 
-## Supported versions
+## Use this template to
+- Add new rows to a Google Sheet containing information in the new commits made and pushed to a GitHub repository.
+- Get away from manually summarizing all the commits made for a particular GitHub repository of your choice.
 
+## What you need
+- A GitHub Account
+- A Google Cloud Platform Account
+
+## How to set up
+- Import the template.
+- Allow access to the GitHub account.
+- Select the repository.
+- Allow access to the Google account.
+- Select spreadsheet.
+- Select worksheet.
+- Select the fields to include.
+- Set up the template. 
+
+# Developer Guide
+<p align="center">
+<img src="./docs/images/template_flow.png?raw=true" alt="Github-Google Sheet Integration template overview"/>
+</p>
+
+## Supported Versions
 <table>
   <tr>
-   <td>Ballerina language version
+   <td>Ballerina Language Version
    </td>
    <td>Swan Lake Alpha2
    </td>
   </tr>
   <tr>
-   <td>Java development kit (JDK) 
+   <td>Java Development Kit (JDK)
    </td>
    <td>11
    </td>
   </tr>
   <tr>
-   <td>Github REST API version
+   <td>GitHub REST API Version
    </td>
    <td>V3
    </td>
   </tr>
   <tr>
-   <td>Google sheets API version
+   <td>Google Sheets API Version
    </td>
    <td>V4
    </td>
   </tr>
 </table>
 
-
 ## Pre-requisites
-
 * Download and install [Ballerina](https://ballerinalang.org/downloads/).
-* Google cloud platform account
-* Github account
-* Ballerina connectors for Github and Google Sheets which will be automatically downloaded when building 
-the application for the first time
+* Google Cloud Platform account
+* GitHub account
 
-
-## Configuration
-
-### Setup Github configurations
-* First obtain a [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) or [GitHub OAuth App token](https://docs.github.com/en/developers/apps/creating-an-oauth-app).
-* Next you need to create a Github repository where you want to get new commits to the google spreadsheet.
-* Set the github topic in the following format. Replace the `<Github-User-Name>` with the username of the Github account &
+## Account Configuration
+### Configuration steps for GitHub account
+1. First obtain a [Personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) or [GitHub OAuth App token](https://docs.github.com/en/developers/apps/creating-an-oauth-app).
+2. Next you need to create a Github repository where you want to get new commits to the google spreadsheet.
+3. Set the github topic in the following format. Replace the `<Github-User-Name>` with the username of the Github account &
 `<Repository-Name-To-Get-Commits>` with the name of the repository you created.
-`https://github.com/<Github-User-Name>/<Repository-Name-To-Get-Commits>/events/*.json`
-* Then you can optionally add a github secret for signature validation.
-* To setup a github callback URL, you can install [ngrok](https://ngrok.com/download) and [expose a local web server to 
+    ```
+    https://github.com/<Github-User-Name>/<Repository-Name-To-Get-Commits>/events/*.json
+    ```
+4. Then you can optionally add a github secret for signature validation.
+5. To setup a github callback URL, you can install [ngrok](https://ngrok.com/download) and [expose a local web server to 
 the internet](https://ngrok.com/docs).
-* Then start the ngork with webhook:Listener service port (8080 in this example) by using the command ./ngrok http 8080 
+6. Then start the ngork with webhook:Listener service port (8080 in this example) by using the command ./ngrok http 8080 
 and obtain a public URL which expose your local service to the internet.
-* Set the github callback URL which is in the format `<public-url-obtained-by-ngrok>/<name-of-the-websub-service>`
-(eg: https://ea0834f44458.ngrok.io/subscriber)
-* Add the accessToken, githubTopic, githubSecret and githubCallback to the config(Config.toml) file.
+7. Set the github callback URL which is in the format 
+    ```
+    <public-url-obtained-by-ngrok>/<name-of-the-websub-service>
+    ```
+    (eg: https://ea0834f44458.ngrok.io/subscriber)
+8. Add the accessToken, githubTopic, githubSecret and githubCallback to the config(Config.toml) file.
 
+### Configuration steps for Google sheets account
 
-### Setup Google sheets configurations
-Create a Google account and create a connected app by visiting [Google cloud platform APIs and services](https://console.cloud.google.com/apis/dashboard). 
-
-1. Click library from the left side menu.
-2. In the search bar enter Google sheets.
-3. Then select Google sheets API and click enable button.
-4. Complete OAuth consent screen setup.
-5. Click `credential` tab from left side bar. In the displaying window click `create credentials` button and select 
-OAuth client Id.
-6. Fill the required field. Add https://developers.google.com/oauthplayground to the Redirect URI field.
-7. Get clientId and secret. Put it on the config(Config.toml) file.
-8. Visit https://developers.google.com/oauthplayground/ 
+1. Create a Google account and create a connected app by visiting [Google cloud platform APIs and Services](https://console.cloud.google.com/apis/dashboard). 
+2. Click Library from the left side menu.
+3. In the search bar enter Google Sheets.
+4. Then select Google Sheets API and click Enable button.
+5. Complete OAuth Consent Screen setup.
+6. Click Credential tab from left side bar. In the displaying window click Create Credentials button
+Select OAuth client Id.
+7. Fill the required field. Add https://developers.google.com/oauthplayground to the Redirect URI field.
+8. Get clientId and secret. Put it on the config(Config.toml) file.
+9. Visit https://developers.google.com/oauthplayground/ 
     Go to settings (Top right corner) -> Tick 'Use your own OAuth credentials' and insert Oauth ClientId and secret.Click close.
-9. Then,complete step1 (select and authotrize API's)
-10. Make sure you select https://www.googleapis.com/auth/drive & https://www.googleapis.com/auth/spreadsheets Oauth scopes.
-11. Click authorize API's and You will be in step 2.
-12. Exchange auth code for tokens.
-13. Copy access token and refresh token. Put it on the config(Config.toml) file.
+10. Then,Complete Step1 (Select and Authotrize API's)
+11. Make sure you select https://www.googleapis.com/auth/drive & https://www.googleapis.com/auth/spreadsheets Oauth scopes.
+12. Click Authorize API's and You will be in Step 2.
+13. Exchange Auth code for tokens.
+14. Copy Access token and Refresh token. Put it on the config(Config.toml) file.
 
-## Configuring the integration template
-
+## Template Configuration
 1. Create new spreadsheet.
 2. Rename the sheet if you want.
-3. Get the ID of the spreadsheet. 
+3. Get the ID of the spreadsheet.
 Spreadsheet ID in the URL "https://docs.google.com/spreadsheets/d/" + `<spreadsheetId>` + "/edit#gid=" + `<worksheetId>` 
-5. Get the sheet name
+5. Get the work sheet name.
 6. Once you obtained all configurations, Create `Config.toml` in root directory.
-7. Replace "" in the `Config.toml` file with your data.
+7. Replace the necessary fields in the `Config.toml` file with your data.
 
-### Config.toml 
+## Config.toml 
+```
+github_accessToken = "<PAT_OR_OAUTH_TOKEN>"
+github_secret = "<GITHUB_SECRET>"
+github_topic = "<GITHUB_TOPIC>"
+github_callbackUrl = "<CALLBACK_URL>"
+sheets_spreadSheetID = "<SPREADSHEET_ID>"
+sheets_workSheetName = "<WORKSHEET_NAME>"
+sheets_refreshToken = "<REFRESH_TOKEN>"
+sheets_clientId = "<CLIENT_ID>"
+sheets_clientSecret = "<CLIENT_SECRET>"
+```
 
-#### ballerinax/github related configurations 
-
-accessToken = ""
-githubTopic = ""
-githubSecret = ""
-githubCallback = ""
-
-#### ballerinax/googleapis_sheet related configurations  
-
-sheets_refreshToken = ""
-sheets_clientId = ""
-sheets_clientSecret = ""
-sheets_refreshurl = ""
-sheets_spreadsheet_id = ""
-sheets_worksheet_name = ""
-
-## Running the template
-
+## Running the Template
 1. First you need to build the integration template and create the executable binary. Run the following command from the 
 root directory of the integration template. 
 `$ bal build`. 
@@ -122,5 +137,3 @@ root directory of the integration template.
 notification for new commits on push.
 
 4. You can check the Google Sheet to verify that new commits are added to the Specified Sheet. 
-
-
