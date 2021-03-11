@@ -1,6 +1,5 @@
 import ballerinax/github.webhook as webhook;
 import ballerinax/googleapis_sheets as sheets;
-import ballerina/log;
 import ballerina/websub;
 
 // Spreadsheet Header Constants
@@ -50,27 +49,21 @@ listener webhook:Listener githubListener = new (8080);
     }
 }
 service /subscriber on githubListener { 
-    remote function onPush(webhook:PushEvent event) returns webhook:Acknowledgement? {
+    remote function onPush(webhook:PushEvent event) returns error? {
         // Set Spreadsheet Headings
         (string)[] headerValues = [COMMIT_AUTHOR_NAME, COMMIT_AUTHOR_EMAIL, COMMIT_MESSAGE, COMMIT_URL, 
             REPOSITORY_NAME, REPOSITORY_URL];
         var headers = spreadsheetClient->getRow(sheets_spreadsheet_id, sheets_worksheet_name, 1);
         if (headers == []){
-            error? headerAppendResult = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
+            check spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
                 sheets_worksheet_name, headerValues);
-            if (headerAppendResult is error) {
-                log:printError(headerAppendResult.message());
-            }
         }
 
         foreach var item in event.commits {
             (int|string|float)[] values = [item.author.name, item.author.email, item.message, item.url, 
                 event.repository.name, event.repository.url];
-            error? append = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
+            check spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
                 sheets_worksheet_name, values);
-            if (append is error) {
-                log:printError(append.message());
-            }
         }                 
     }
 }
