@@ -1,8 +1,6 @@
 import ballerinax/github.webhook as webhook;
 import ballerinax/twilio;
 import ballerina/websub;
-import ballerina/log;
-import ballerina/io;
 
 // Twilio configuration parameters
 configurable string account_sid = ?;
@@ -15,7 +13,7 @@ twilio:TwilioConfiguration twilioConfig = {
     authToken: auth_token
 };
 
-twilio:Client twilioClient = new(twilioConfig);
+twilio:Client twilioClient = new (twilioConfig);
 
 // github configuration parameters
 configurable string accessToken = ?;
@@ -37,41 +35,27 @@ listener webhook:Listener githubListener = new (8080);
     }
 }
 service /subscriber on githubListener {
-    remote function onEventNotification(websub:ContentDistributionMessage event) {
-        io:StringReader sr = new (event.content.toJsonString());
-        json|error contentInfo = sr.readJson();
-        if (contentInfo is json) {
-            if (contentInfo.action == RELEASED || contentInfo.action == EDITED) {
-                json|error releaseInfo = contentInfo.release; 
-                if (releaseInfo is json) {
-                    sendMessageForNewRelease(releaseInfo);
-                } else {
-                    log:printError(releaseInfo.message());
-                }
-            } 
-        } else {
-            log:printError(contentInfo.message());
-        }
-    } 
+    remote function onReleased(webhook:ReleaseEvent event) returns error? {
+        webhook:Release releaseInfo = event.release; 
+        check sendMessageForNewRelease(releaseInfo);
+    }
+
+    remote function onReleaseEdited(webhook:ReleaseEvent event) returns error? {
+        webhook:Release releaseInfo = event.release; 
+        check sendMessageForNewRelease(releaseInfo);
+    }
 }
 
-function sendMessageForNewRelease(json release) {
+function sendMessageForNewRelease(webhook:Release release) returns error? {
     (string)[] releaseKeys = [RELEASE_URL, RELEASE_TAG_NAME, RELEASE_NAME, RELEASE_DESCRIPTION];
     string message = "Github new release available! \n";
-    map<json> releaseMap = <map<json>> release;
 
     foreach var releaseKey in releaseKeys {
-        if (releaseMap.hasKey(releaseKey)) {
-            message = message + releaseKey + " : " + releaseMap.get(releaseKey).toString() + "\n";  
+        if (release.hasKey(releaseKey)) {
+            message = message + releaseKey + " : " + release.get(releaseKey).toString() + "\n";  
         }   
     }
 
-    var result = twilioClient->sendSms(from_mobile, to_mobile, message);
-    if (result is twilio:SmsResponse) {
-        log:print("SMS sent successfully for the new Github release" + "\nSMS_SID: " + result.sid.toString() + 
-            "\nSMS Body: \n" + result.body.toString());
-    } else {
-        log:printError(result.message());
-    }
+    twilio:SmsResponse result = check twilioClient->sendSms(from_mobile, to_mobile, message);
 }
 
