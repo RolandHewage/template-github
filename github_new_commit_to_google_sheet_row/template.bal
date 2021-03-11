@@ -51,7 +51,6 @@ listener webhook:Listener githubListener = new (8080);
 }
 service /subscriber on githubListener { 
     remote function onPush(webhook:PushEvent event) returns webhook:Acknowledgement? {
-        log:print("Received push-event-message ", eventPayload = event);
         // Set Spreadsheet Headings
         (string)[] headerValues = [COMMIT_AUTHOR_NAME, COMMIT_AUTHOR_EMAIL, COMMIT_MESSAGE, COMMIT_URL, 
             REPOSITORY_NAME, REPOSITORY_URL];
