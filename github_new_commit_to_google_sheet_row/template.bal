@@ -1,7 +1,15 @@
-import ballerinax/googleapis_sheets as sheets;
 import ballerinax/github.webhook as webhook;
-import ballerina/websub;
+import ballerinax/googleapis_sheets as sheets;
 import ballerina/log;
+import ballerina/websub;
+
+// Spreadsheet Header Constants
+const string COMMIT_AUTHOR_NAME = "Commit Author Name";
+const string COMMIT_AUTHOR_EMAIL = "Commit Author Email";
+const string COMMIT_MESSAGE = "Commit Message";
+const string COMMIT_URL = "Commit URL";
+const string REPOSITORY_NAME = "Repository Name";
+const string REPOSITORY_URL = "Repository URL";
 
 // google sheet configuration parameters
 configurable string sheets_refreshToken = ?;
@@ -20,7 +28,7 @@ sheets:SpreadsheetConfiguration spreadsheetConfig = {
 };
 
 // Initialize the Spreadsheet Client
-sheets:Client spreadsheetClient = checkpanic new (spreadsheetConfig);
+sheets:Client spreadsheetClient = check new (spreadsheetConfig);
 
 // github configuration parameters
 configurable string accessToken = ?;
@@ -41,11 +49,12 @@ listener webhook:Listener githubListener = new (8080);
         }
     }
 }
-service /subscriber on githubListener {
-    remote function onEventNotification(websub:ContentDistributionMessage event) {
+service /subscriber on githubListener { 
+    remote function onPush(webhook:PushEvent event) returns webhook:Acknowledgement? {
+        log:print("Received push-event-message ", eventPayload = event);
         // Set Spreadsheet Headings
-        (string)[] headerValues = ["Commit Author Name", "Commit Author Email", "Commit Message", "Commit URL", 
-            "Repository Name", "Repository URL"];
+        (string)[] headerValues = [COMMIT_AUTHOR_NAME, COMMIT_AUTHOR_EMAIL, COMMIT_MESSAGE, COMMIT_URL, 
+            REPOSITORY_NAME, REPOSITORY_URL];
         var headers = spreadsheetClient->getRow(sheets_spreadsheet_id, sheets_worksheet_name, 1);
         if (headers == []){
             error? headerAppendResult = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
@@ -55,17 +64,14 @@ service /subscriber on githubListener {
             }
         }
 
-        var payload = githubListener.getEventType(event);
-        if (payload is webhook:PushEvent) {
-            foreach var item in payload.commits {
-                (int|string|float)[] values = [item.author.name, item.author.email, item.message, item.url, 
-                    payload.repository.name, payload.repository.url];
-                error? append = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
-                    sheets_worksheet_name, values);
-                if (append is error) {
-                    log:printError(append.message());
-                }
+        foreach var item in event.commits {
+            (int|string|float)[] values = [item.author.name, item.author.email, item.message, item.url, 
+                event.repository.name, event.repository.url];
+            error? append = spreadsheetClient->appendRowToSheet(sheets_spreadsheet_id, 
+                sheets_worksheet_name, values);
+            if (append is error) {
+                log:printError(append.message());
             }
-        }        
-    } 
+        }                 
+    }
 }
