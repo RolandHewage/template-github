@@ -1,37 +1,32 @@
 import ballerinax/github.webhook as webhook;
+import ballerina/http;
 import ballerinax/twilio;
 import ballerina/websub;
 
 // Twilio configuration parameters
-configurable string account_sid = ?;
-configurable string auth_token = ?;
-configurable string from_mobile = ?;
-configurable string to_mobile = ?;
+configurable twilio:TwilioConfiguration & readonly twilioConfig = ?;
+configurable string & readonly from_mobile = ?;
+configurable string & readonly to_mobile = ?;
 
-twilio:TwilioConfiguration twilioConfig = {
-    accountSId: account_sid,
-    authToken: auth_token
-};
-
+// Initialize the Twilio Client
 twilio:Client twilioClient = new (twilioConfig);
 
 // github configuration parameters
-configurable string accessToken = ?;
-configurable string githubTopic = ?;
-configurable string githubSecret = ?;
-configurable string githubCallback = ?;
+configurable http:BearerTokenConfig & readonly bearerTokenConfig = ?;
+configurable string & readonly githubTopic = ?;
+configurable string & readonly githubSecret = ?;
+configurable string & readonly githubCallback = ?;
+configurable int & readonly port = ?;
 
 // Initialize the Github Listener
-listener webhook:Listener githubListener = new (8080);
+listener webhook:Listener githubListener = new (port);
 
 @websub:SubscriberServiceConfig {
     target: [webhook:HUB, githubTopic],
     secret: githubSecret,
     callback: githubCallback,
     httpConfig: {
-        auth: {
-            token: accessToken
-        }
+        auth: bearerTokenConfig
     }
 }
 service /subscriber on githubListener {

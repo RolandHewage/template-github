@@ -1,43 +1,36 @@
 import ballerinax/github.webhook as webhook;
 import ballerinax/googleapis_sheets as sheets;
+import ballerina/http;
 import ballerina/websub;
 
 // google sheet configuration parameters
-configurable string sheets_refreshToken = ?;
-configurable string sheets_clientId = ?;
-configurable string sheets_clientSecret = ?;
-configurable string sheets_spreadsheet_id = ?;
-configurable string sheets_worksheet_name = ?;
+configurable http:OAuth2DirectTokenConfig & readonly directTokenConfig = ?;
+configurable string & readonly sheets_spreadsheet_id = ?;
+configurable string & readonly sheets_worksheet_name = ?;
 
 sheets:SpreadsheetConfiguration spreadsheetConfig = {
-    oauthClientConfig: {
-        clientId: sheets_clientId,
-        clientSecret: sheets_clientSecret,
-        refreshUrl: sheets:REFRESH_URL,
-        refreshToken: sheets_refreshToken
-    }
+    oauthClientConfig: directTokenConfig
 };
 
 // Initialize the Spreadsheet Client
 sheets:Client spreadsheetClient = check new (spreadsheetConfig);
 
 // github configuration parameters
-configurable string accessToken = ?;
-configurable string githubTopic = ?;
-configurable string githubSecret = ?;
-configurable string githubCallback = ?;
+configurable http:BearerTokenConfig & readonly bearerTokenConfig = ?;
+configurable string & readonly githubTopic = ?;
+configurable string & readonly githubSecret = ?;
+configurable string & readonly githubCallback = ?;
+configurable int & readonly port = ?;
 
 // Initialize the Github Listener
-listener webhook:Listener githubListener = new (8080);
+listener webhook:Listener githubListener = new (port);
 
 @websub:SubscriberServiceConfig {
     target: [webhook:HUB, githubTopic],
     secret: githubSecret,
     callback: githubCallback,
     httpConfig: {
-        auth: {
-            token: accessToken
-        }
+        auth: bearerTokenConfig
     }
 }
 service /subscriber on githubListener { 
